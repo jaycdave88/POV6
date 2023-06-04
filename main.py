@@ -61,22 +61,39 @@ def oauth2callback():
     session["name"] = id_info.get("name")
     session["email"] = id_info.get("email")
 
+    # mappings = read_map_google_sheet(flow_credentials)
+    mappings = read_google_sheet(flow_credentials, '1P8Ay9fq-ot1DP2B9DIZuUINYbauq-qEqTRDVSyHJrps', 'Mutual Action Plan', 'A1:H37')
+
     # Create a new Google Sheet with hard-coded values
-    spreadsheet_id = create_google_sheet(flow_credentials)
+    spreadsheet_id = create_google_sheet(flow_credentials, mappings)
 
     # # Open the Google Sheet URL in the default browser
     sheet_url = f'https://docs.google.com/spreadsheets/d/{spreadsheet_id}'
     
     return redirect(sheet_url, code=302)
 
-
-# Create a new Google Sheet with hard-coded values
-def create_google_sheet(flow_credentials):
+def read_google_sheet(flow_credentials, spreadsheet_id, sheet_name, range_name):
     # Initialize the Google Sheets API
     service = build('sheets', 'v4', credentials=flow_credentials)
 
-    # creds = credentials.Credentials.from_authorized_user_info(session['credentials'])
-    # service = googleapiclient.discovery.build('sheets', 'v4', credentials=creds)
+    # Read values from the Google Sheet
+    range = f'{sheet_name}!{range_name}'
+    request = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range)
+    response = request.execute()
+    values = response.get('values', [])
+    
+    # Process the values and return as a list of rows
+    rows = []
+    for row in values:
+        rows.append(row)
+        print(row)
+
+    return rows
+
+# Create a new Google Sheet with hard-coded values
+def create_google_sheet(flow_credentials, mappings):
+    # Initialize the Google Sheets API
+    service = build('sheets', 'v4', credentials=flow_credentials)
 
     spreadsheet = {
         'properties': {
@@ -90,9 +107,7 @@ def create_google_sheet(flow_credentials):
                 'data': [
                     {
                         'rowData': [
-                            {'values': [{'userEnteredValue': {'stringValue': 'Value 1'}}]},
-                            {'values': [{'userEnteredValue': {'stringValue': 'Value 2'}}]},
-                            {'values': [{'userEnteredValue': {'stringValue': 'Value 3'}}]}
+                            {'values': [{'userEnteredValue': {'stringValue': element}}]} for mapping in mappings for element in mapping
                         ]
                     }
                 ]
@@ -105,6 +120,7 @@ def create_google_sheet(flow_credentials):
     spreadsheet_id = response['spreadsheetId']
 
     return spreadsheet_id
+
 
 if __name__ == '__main__':
     app.run(debug=True)
