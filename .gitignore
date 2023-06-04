@@ -1,0 +1,42 @@
+# Google OAuth Keys
+OAuth_2.json
+
+# Python-related
+*.pyc
+__pycache__/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+.env.*
+
+# Flask-related
+instance/
+app.db
+
+# IDE-specific
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and backups
+logs/
+*.log
+*.bak
+
+# Compiled files
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyw
+*.pyi
+
+# Cache and temporary files
+*.swp
+.DS_Store
+Thumbs.db
